@@ -1,6 +1,6 @@
 # YSA_Project
 
-## DataSET(Kaggle)
+## DataSET(Netflix Prize Data)
  -  https://www.kaggle.com/netflix-inc/netflix-prize-data
 
 ## 1) Kaggle Kaynak
