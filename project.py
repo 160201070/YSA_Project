@@ -100,6 +100,9 @@ df_cust_summary.index = df_cust_summary.index.map(int)
 cust_benchmark = round(df_cust_summary['count'].quantile(0.8),0)
 drop_cust_list = df_cust_summary[df_cust_summary['count'] < cust_benchmark].index
 
+# Manual Testing Variables
+Manual_df = df
+
 print('Customer minimum times of review: {}'.format(cust_benchmark))
 # yukarıda hesaplananları listeden çıkarıyor
 print('Original Shape: {}'.format(df.shape))
@@ -116,64 +119,82 @@ print(df_p.shape)
 
 
 # %% Data Mapping
-df_title = pd.read_csv("netflix-prize-data/movie_titles.csv", encoding = "ISO-8859-1", header = None, names = ['Movie_Id', 'Year', 'Name'], nrows = 60)
-df_title.set_index('Movie_Id', inplace = True)
-print (df_title.head(10))
-
-
-reader = Reader()
-
-# get just top 100K rows for faster run time
-data = Dataset.load_from_df(df[['Cust_Id', 'Movie_Id', 'Rating']][:50000], reader)
-kf = KFold(n_splits=3)
-kf.split(data)
-
-svd = SVD()
-cross_validate(svd, data, measures=['RMSE', 'MAE'])
 # =============================================================================
+# df_title = pd.read_csv("netflix-prize-data/movie_titles.csv", encoding = "ISO-8859-1", header = None, names = ['Movie_Id', 'Year', 'Name'], nrows = 60)
+# df_title.set_index('Movie_Id', inplace = True)
+# print (df_title.head(10))
 # 
-# 1:
-#     111222, 5
-#     222111, 3
-#     
-# 2:
-#     111222, 3
-#     222111, 4
-#     
 # 
-#     
-# 111222[5,3]
-# 222111[3,4]
+# reader = Reader()
+# 
+# # get just top 100K rows for faster run time
+# # =============================================================================
+# # data = Dataset.load_from_df(df[['Cust_Id', 'Movie_Id', 'Rating']][:50000], reader)
+# # kf = KFold(n_splits=3)
+# # kf.split(data)
+# # 
+# # svd = SVD()
+# # cross_validate(svd, data, measures=['RMSE', 'MAE'])
+# # =============================================================================
+# # =============================================================================
+# # 
+# # 1:
+# #     111222, 5
+# #     222111, 3
+# #     
+# # 2:
+# #     111222, 3
+# #     222111, 4
+# #     
+# # 
+# #     
+# # 111222[5,3]
+# # 222111[3,4]
+# # =============================================================================
+# df_785314 = df[(df['Cust_Id'] == 588844) & (df['Rating'] == 5)]
+# df_785314_2 = df[(df['Cust_Id'] == 588844) & (df['Rating'] == 5)]
+# df_785314 = df_785314.set_index('Movie_Id')
+# df_785314 = df_785314.join(df_title)['Name']
+# print(df_785314)
+# 
+# user_785314 = df_title.copy()
+# user_785314 = user_785314.reset_index()
+# user_785314 = user_785314[~user_785314['Movie_Id'].isin(drop_movie_list)]
 # =============================================================================
-df_785314 = df[(df['Cust_Id'] == 588844) & (df['Rating'] == 5)]
-df_785314_2 = df[(df['Cust_Id'] == 588844) & (df['Rating'] == 5)]
-df_785314 = df_785314.set_index('Movie_Id')
-df_785314 = df_785314.join(df_title)['Name']
-print(df_785314)
-
-user_785314 = df_title.copy()
-user_785314 = user_785314.reset_index()
-user_785314 = user_785314[~user_785314['Movie_Id'].isin(drop_movie_list)]
 
 # getting full dataset
-data = Dataset.load_from_df(df[['Cust_Id', 'Movie_Id', 'Rating']], reader)
-
-trainset = data.build_full_trainset()
-svd.fit(trainset)
-
-#plot data
 # =============================================================================
-# plt.plot(df_785314_2.Cust_Id, df_785314_2.Rating,color = "black",label = "poly")
-# plt.legend()
-# plt.scatter(df_785314_2.Cust_Id, df_785314_2.Rating)
-# plt.xlabel("Cust_Id")
-# plt.ylabel("Rating")
-# plt.show()
+# data = Dataset.load_from_df(df[['Cust_Id', 'Movie_Id', 'Rating']], reader)
+# 
+# trainset = data.build_full_trainset()
+# svd.fit(trainset)
+# 
+# #plot data
+# # =============================================================================
+# # plt.plot(df_785314_2.Cust_Id, df_785314_2.Rating,color = "black",label = "poly")
+# # plt.legend()
+# # plt.scatter(df_785314_2.Cust_Id, df_785314_2.Rating)
+# # plt.xlabel("Cust_Id")
+# # plt.ylabel("Rating")
+# # plt.show()
+# # =============================================================================
+# 
+# user_785314['Estimate_Score'] = user_785314['Movie_Id'].apply(lambda x: svd.predict(588844, x).est)
+# 
+# user_785314 = user_785314.drop('Movie_Id', axis = 1)
+# 
+# user_785314 = user_785314.sort_values('Estimate_Score', ascending=False)
+# print(user_785314.head(10))
+# 
 # =============================================================================
 
-user_785314['Estimate_Score'] = user_785314['Movie_Id'].apply(lambda x: svd.predict(588844, x).est)
+# %% Manual YSA Algorithm
 
-user_785314 = user_785314.drop('Movie_Id', axis = 1)
 
-user_785314 = user_785314.sort_values('Estimate_Score', ascending=False)
-print(user_785314.head(10))
+# Manual Testing Variables
+U = df_cust_summary[df_cust_summary['count'] > 0.0].index
+N = len(U)
+I = df_movie_summary[df_movie_summary['mean'] > 0.0].index
+M = len(I)
+
+Manual_df_p = pd.pivot_table(Manual_df,values='Rating',index='Cust_Id',columns='Movie_Id')

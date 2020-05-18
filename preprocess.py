@@ -15,7 +15,7 @@ class Preprocess:
 
         # df1 = pd.read_csv("netflix-prize-data/movie_titles.csv")
 
-        df = pd.read_csv("combined_data_1.csv", header=None, names=['Cust_Id', 'Rating'], usecols=[0, 1], nrows=280167)
+        df = pd.read_csv("netflix-prize-data/combined_data_1.csv", header=None, names=['Cust_Id', 'Rating'], usecols=[0, 1], nrows=280167)
         df['Rating'] = df['Rating'].astype(float)
 
         # %% Data Viewing
@@ -30,16 +30,7 @@ class Preprocess:
         # get rating count
         rating_count = df['Cust_Id'].count() - movie_count  # Toplam oy sayısı
 
-        ax = p.plot(kind='barh', legend=False, figsize=(15, 10))
-        plt.title(
-            'Total pool: {:,} Movies, {:,} customers, {:,} ratings given'.format(movie_count, cust_count, rating_count),
-            fontsize=20)
-        plt.axis('off')
-
-        for i in range(1, 6):
-            ax.text(p.iloc[i - 1][0] / 4, i - 1, 'Rating {}: {:.0f}%'.format(i, p.iloc[i - 1][0] * 100 / p.sum()[0]),
-                    color='white', weight='bold')
-
+       
         # %% Data Cleaning
         df_nan = pd.DataFrame(pd.isnull(df.Rating))  # Oy gözükmeyen satırlar true oylar false
         df_nan = df_nan[df_nan['Rating'] == True]  # True olanları listeliyor bu sayede
@@ -88,16 +79,32 @@ class Preprocess:
         cust_benchmark = round(df_cust_summary['count'].quantile(0.8), 0)
         drop_cust_list = df_cust_summary[df_cust_summary['count'] < cust_benchmark].index
 
+        df_all = df
         df = df[~df['Movie_Id'].isin(drop_movie_list)]
         df = df[~df['Cust_Id'].isin(drop_cust_list)]
+# =============================================================================
+#         df.loc[df.Weight == "155", "Name"] = "John"
+# =============================================================================        
+        df_p = pd.pivot_table(df,values='Rating',index='Cust_Id',columns='Movie_Id')
+      
+        
+        for col in df_p:
+           df_p.loc[df_p[col] > 0.0, col] = 1
+        
+        df_p = df_p.replace(np.nan,0)
+       
+        print(df_p.shape)
+        
         # todo df array'i formatlanacak
-        self.data = df
+        self.dataAll = df_p.iloc[:,11]
+        df_p = df_p.drop(df_p.columns[[11]], axis=1) 
+        self.data = df_p
 
     def get_training_inputs(self):
         return self.data # todo verinin yüzde 80'i return edilecek
 
     def get_training_outputs(self):
-        return self.data # todo oy array'inin yüzde 80'i return edilecek
+        return self.dataAll # todo oy array'inin yüzde 80'i return edilecek
 
     def get_validate_inputs(self):
         return self.data # todo verinin kalan kısmı
