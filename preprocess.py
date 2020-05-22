@@ -96,7 +96,7 @@ class Preprocess:
         print(df_p.shape)
         
         # todo df array'i formatlanacak
-        self.dataAll = df_p.iloc[:,11]
+        self.dataColumn = df_p.iloc[:,11]
         df_p = df_p.drop(df_p.columns[[11]], axis=1) 
         self.data = df_p
 
@@ -104,7 +104,7 @@ class Preprocess:
         return self.data # todo verinin yüzde 80'i return edilecek
 
     def get_training_outputs(self):
-        return self.dataAll # todo oy array'inin yüzde 80'i return edilecek
+        return self.dataColumn # todo oy array'inin yüzde 80'i return edilecek
 
     def get_validate_inputs(self):
         return self.data # todo verinin kalan kısmı
