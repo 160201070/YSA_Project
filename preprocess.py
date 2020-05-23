@@ -89,26 +89,36 @@ class Preprocess:
       
         
         for col in df_p:
-           df_p.loc[df_p[col] > 0.0, col] = 1
+           df_p.loc[df_p[col] <= 2.0, col] = 0
+           df_p.loc[df_p[col] > 2.0, col] = 1
         
         df_p = df_p.replace(np.nan,0)
        
         print(df_p.shape)
         
         # todo df array'i formatlanacak
-        self.dataColumn = df_p.iloc[:,11]
-        df_p = df_p.drop(df_p.columns[[11]], axis=1) 
-        self.data = df_p
+        movie = df_p.iloc[:,5]
+        
+        self.select_movie  = movie.head(48000)
+        self.predict_movie = movie.tail(12000)
+        
+        df_p = df_p.drop(df_p.columns[[5]], axis=1) 
+        
+        self.data_train = df_p.head(48000)
+        self.data_predict = df_p.tail(12000)
+        
+        
+        
 
     def get_training_inputs(self):
-        return self.data # todo verinin yüzde 80'i return edilecek
+        return self.data_train # todo verinin yüzde 80'i return edilecek
 
     def get_training_outputs(self):
-        return self.dataColumn # todo oy array'inin yüzde 80'i return edilecek
+        return self.select_movie # todo oy array'inin yüzde 80'i return edilecek
 
-    def get_validate_inputs(self):
-        return self.data # todo verinin kalan kısmı
+    def get_test_inputs(self):
+        return self.data_predict # todo verinin kalan kısmı
 
-    def get_validate_outputs(self):
-        return self.data # todo oy array'inin kalan kısmı
+    def get_test_outputs(self):
+        return self.predict_movie # todo oy array'inin kalan kısmı
 
