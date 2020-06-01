@@ -1,10 +1,9 @@
 from preprocess import Preprocess
 from neural_network import NeuralNetwork
-import pandas as pd
 import numpy as np
 
 if __name__ == "__main__":
-    # Initialize the single neuron neural network
+
     preprocess = Preprocess()
     neural_network = NeuralNetwork()
     
@@ -53,7 +52,6 @@ if __name__ == "__main__":
     
     
     
-    
     out_arr = np.logical_xor(predicted_outputs, test_output) 
     out_arr = 1 - out_arr
     
@@ -66,17 +64,3 @@ if __name__ == "__main__":
     print(true_length/total_length*100)
 
       
-# =============================================================================
-#     training_inputs = preprocess.get_training_inputs()
-#     training_outputs = preprocess.get_training_outputs()
-# 
-#     # Train the neural network
-#     neural_network.train(training_inputs, training_outputs, 10000)
-# 
-#     predicted_outputs = neural_network.think(preprocess.get_training_inputs())
-#     print("predicted_outputs: ")
-#     print(predicted_outputs)
-# 
-#     print("expected outputs: ")
-#     print(preprocess.get_validate_outputs())
-# =============================================================================
